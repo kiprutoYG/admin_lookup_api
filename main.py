@@ -29,6 +29,13 @@ LAYER_MAPPING = {
 
 #=====Utility Functions=====
 def get_highest_adm_level_gpkg(country_code, base_dir="data/adm_levels"):
+    '''
+    Gets the highest administrative level GPKG file for a given country code.
+    Args:
+        country_code (str): The country code to search for.
+        base_dir (str): The directory where the GPKG files are stored.
+        Returns:
+        gpd.GeoDataFrame: The GeoDataFrame of the highest administrative level found.'''
     # Match pattern like gadm_41_KEN_ADM3.gpkg
     pattern = re.compile(rf"gadm41_{country_code}_(\d)\.shp")
 
@@ -53,6 +60,11 @@ def get_highest_adm_level_gpkg(country_code, base_dir="data/adm_levels"):
 def get_adm_names(lat: float, lon: float) -> dict:
     """
     Get administrative names for a given latitude and longitude.
+    Args:
+        lat (float): Latitude of the point.
+        lon (float): Longitude of the point.
+    Returns:
+        dict: A dictionary containing administrative names at various levels.
     """
     point = Point(lon, lat)  # Note: Shapely uses (longitude, latitude)
     names = {}
@@ -90,6 +102,12 @@ def get_adm_names(lat: float, lon: float) -> dict:
 def get_geometry_by_point_and_level(lat: float, lon: float, level: str) -> gpd.GeoDataFrame:
     """
     Get the geometry of the administrative area at the specified level for a given latitude and longitude.
+    Args:
+        lat (float): Latitude of the point.
+        lon (float): Longitude of the point.
+        level (str): Administrative level (e.g., "ADM_0", "ADM_1", etc.).
+    Returns:
+        gpd.GeoDataFrame: The GeoDataFrame containing the geometry of the administrative area.
     """
     point = Point(lon, lat)
     layer = LAYER_MAPPING.get(level)
@@ -120,10 +138,14 @@ def get_geometry_by_point_and_level(lat: float, lon: float, level: str) -> gpd.G
     
     
 #====API Endpoints====
-@app.post("/locate")
+@app.post("/locate", summary="Get administrative units from coordinates")
 def locate_coordinates(coords: Coordinates):
     """
     Endpoint to locate coordinates and return administrative names.
+    Args:
+        coords (Coordinates): The coordinates to locate.
+    Returns:
+        dict: A dictionary containing the longitude, latitude, and administrative names.
     """
     names = get_adm_names(coords.latitude, coords.longitude)
     return {
@@ -133,12 +155,23 @@ def locate_coordinates(coords: Coordinates):
     }
     
 
-@app.get("/download")
+@app.get("/download",
+    summary="Download administrative boundary shapefile",
+    description="Provide coordinates and ADM level (e.g., adm_1, adm_3) to download the shapefile where the point falls.")
 def download(
     latitude: float = Query(...),
     longitude: float = Query(...),
     level: str = Query(...)
 ):
+    """
+    Endpoint to download the geometry of the administrative area at the specified level for given coordinates.
+    Args:
+        latitude (float): Latitude of the point.
+        longitude (float): Longitude of the point.
+        level (str): Administrative level (e.g., "ADM_0", "ADM_1", etc.).
+    Returns:
+        FileResponse: A response containing the GeoJSON file of the administrative area.
+    """
     try:
         matched = get_geometry_by_point_and_level(latitude, longitude, level)
         outpath = f"downloads/{level}_{latitude}_{longitude}.geojson"
@@ -151,5 +184,7 @@ def download(
 def root():
     """
     Root endpoint to check if the API is running.
+    Returns:
+        JSONResponse: A response indicating that the API is running.
     """
     return JSONResponse(content={"message": "Kenya Administration Level API is running."})
