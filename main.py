@@ -5,10 +5,10 @@ from fastapi.responses import JSONResponse, FileResponse
 from pydantic import BaseModel
 from shapely.geometry import Point
 import geopandas as gpd
-import os
+import glob
 import re
 
-app = FastAPI(title='Kenya Administration Level API') #initialize FASTAPI app
+app = FastAPI(title='East Africa Administration Level API') #initialize FASTAPI app
 
 #====Models====
 class Coordinates(BaseModel):
@@ -29,32 +29,25 @@ LAYER_MAPPING = {
 
 #=====Utility Functions=====
 def get_highest_adm_level_gpkg(country_code, base_dir="data/adm_levels"):
-    '''
-    Gets the highest administrative level GPKG file for a given country code.
-    Args:
-        country_code (str): The country code to search for.
-        base_dir (str): The directory where the GPKG files are stored.
-        Returns:
-        gpd.GeoDataFrame: The GeoDataFrame of the highest administrative level found.'''
-    # Match pattern like gadm_41_KEN_ADM3.gpkg
-    pattern = re.compile(rf"gadm41_{country_code}_(\d)\.shp")
+    pattern = f"{base_dir}/gadm41_{country_code}_*.shp"
+    matches = glob.glob(pattern)
 
-    highest_adm = -1
+    highest_level = -1
     highest_file = None
 
-    for filename in os.listdir(base_dir):
-        match = pattern.match(filename)
-        if match:
-            level = int(match.group(1))
-            if level > highest_adm:
-                highest_adm = level
-                highest_file = os.path.join(base_dir, filename)
+    for filepath in matches:
+        level_match = re.search(rf"gadm41_{country_code}_(\d)\.shp", filepath)
+        if level_match:
+            level = int(level_match.group(1))
+            if level > highest_level:
+                highest_level = level
+                highest_file = filepath
 
     if highest_file:
-        print(f"Selected highest ADM level: ADM{highest_adm} for {country_code}")
         return gpd.read_file(highest_file)
     else:
-        raise FileNotFoundError(f"No ADM GPKGs found for {country_code}")
+        raise FileNotFoundError(f"No ADM shapefiles found for {country_code}")
+
     
     
 def get_adm_names(lat: float, lon: float) -> dict:
@@ -187,4 +180,4 @@ def root():
     Returns:
         JSONResponse: A response indicating that the API is running.
     """
-    return JSONResponse(content={"message": "Kenya Administration Level API is running."})
+    return JSONResponse(content={"message": "East Africa Administration Level API is running."})
