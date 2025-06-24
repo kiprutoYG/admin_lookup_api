@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from shapely.geometry import Point
 import geopandas as gpd
 import glob
+import os
 import re
 
 app = FastAPI(title='East Africa Administration Level API') #initialize FASTAPI app
@@ -16,7 +17,7 @@ class Coordinates(BaseModel):
     longitude: float
     
 #====Configuration====
-EA_GPKG_PATH = 'data/EA_ADM0.gpkg' 
+EA_GPKG_PATH = './data/EA_ADM0.gpkg' 
 LAYER_MAPPING = {
     "Country": "ADM_0",
     "ADM_1": "ADM_1",
@@ -28,7 +29,7 @@ LAYER_MAPPING = {
 
 
 #=====Utility Functions=====
-def get_highest_adm_level_gpkg(country_code, base_dir="data/adm_levels"):
+def get_highest_adm_level_gpkg(country_code, base_dir="./data/adm_levels"):
     pattern = f"{base_dir}/gadm41_{country_code}_*.shp"
     matches = glob.glob(pattern)
 
