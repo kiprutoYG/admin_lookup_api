@@ -1,17 +1,17 @@
 fastapi==0.111.0
 uvicorn[standard]==0.30.1
 
-# Geospatial stack
+# Geospatial stack - keep these versions safe and binary-compatible
 geopandas==0.14.4
 shapely==2.0.3
-fiona==1.9.6
-pyproj==3.6.1
-rtree==1.2.0  # For spatial indexing (required by GeoPandas)
+fiona==1.9.5
+pyproj==3.6.0
+rtree==1.2.0
 
 # Core utilities
 pydantic==2.7.1
 python-multipart==0.0.9
 starlette==0.37.2
 
-# Optional: For zipping shapefiles (if using download feature)
+# Optional: For zipping files
 zipfile36==0.1.3
