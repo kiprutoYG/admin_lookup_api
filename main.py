@@ -7,6 +7,8 @@ from shapely.geometry import Point
 import geopandas as gpd
 import glob
 import os
+import io
+from fastapi.responses import StreamingResponse
 import re
 
 app = FastAPI(title='East Africa Administration Level API') #initialize FASTAPI app
@@ -149,6 +151,7 @@ def locate_coordinates(coords: Coordinates):
     }
     
 
+
 @app.get("/download",
     summary="Download administrative boundary shapefile",
     description="Provide coordinates and ADM level (e.g., adm_1, adm_3) to download the shapefile where the point falls.")
@@ -159,18 +162,23 @@ def download(
 ):
     """
     Endpoint to download the geometry of the administrative area at the specified level for given coordinates.
-    Args:
-        latitude (float): Latitude of the point.
-        longitude (float): Longitude of the point.
-        level (str): Administrative level (e.g., "ADM_0", "ADM_1", etc.).
-    Returns:
-        FileResponse: A response containing the GeoJSON file of the administrative area.
     """
     try:
         matched = get_geometry_by_point_and_level(latitude, longitude, level)
-        outpath = f"downloads/{level}_{latitude}_{longitude}.geojson"
-        matched.to_file(outpath, driver="GeoJSON")
-        return FileResponse(outpath, filename=os.path.basename(outpath), media_type="application/geo+json")
+        
+        # Write to in-memory GeoJSON buffer
+        buffer = io.BytesIO()
+        matched.to_file(buffer, driver="GeoJSON")
+        buffer.seek(0)  # Go to beginning of buffer
+
+        filename = f"{level}_{latitude}_{longitude}.geojson"
+
+        return StreamingResponse(
+            buffer,
+            media_type="application/geo+json",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
