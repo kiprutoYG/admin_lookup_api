@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 st.set_page_config(page_title="East Africa Admin Lookup", layout="centered")
-API_BASE = "https://admin-lookup-api.onrender.com/"
+API_BASE = "https://admin-lookup-api.onrender.com"
 
 
 st.title("📍EA Admin Locator from Coordinates")
