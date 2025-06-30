@@ -11,7 +11,7 @@ import io
 from fastapi.responses import StreamingResponse
 import re
 
-app = FastAPI(title='East Africa Administration Level API') #initialize FASTAPI app
+app = FastAPI() #initialize FASTAPI app
 
 #====Models====
 class Coordinates(BaseModel):
@@ -178,6 +178,29 @@ def download(
             media_type="application/geo+json",
             headers={"Content-Disposition": f"attachment; filename={filename}"}
         )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/available-levels", summary="Get available ADM levels for a coordinate")
+def available_levels(latitude: float, longitude: float):
+    try:
+        point = Point(longitude, latitude)
+        gdf = gpd.read_file(EA_GPKG_PATH).to_crs("EPSG:4326")
+        match = gdf[gdf.contains(point)]
+
+        if match.empty:
+            return {"error": "No matching country."}
+
+        gid = match.iloc[0]["GID_0"]
+
+        levels_found = []
+        for i in range(6):  # ADM0–ADM5
+            expected = f"gadm41_{gid}_{i}.shp"
+            if expected in os.listdir("data/adm_levels"):
+                levels_found.append(f"ADM_{i}")
+
+        return {"available_levels": levels_found}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
