@@ -5,7 +5,7 @@ st.set_page_config(page_title="East Africa Admin Lookup", layout="centered")
 API_BASE = "https://admin-lookup-api.onrender.com/"
 
 
-st.title("📍 Admin Locator from Coordinates")
+st.title("📍EA Admin Locator from Coordinates")
 st.markdown("Enter coordinates below to find the administrative area.")
 
 lat = st.number_input("Latitude", value=-1.2921, format="%.6f")
