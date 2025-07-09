@@ -10,8 +10,18 @@ import os
 import io
 from fastapi.responses import StreamingResponse
 import re
+from fastapi.middleware.cors import CORSMiddleware
+
+
 
 app = FastAPI() #initialize FASTAPI app
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Change to your frontend URL in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 #====Models====
 class Coordinates(BaseModel):
