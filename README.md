@@ -1,91 +1,138 @@
-# Administrative Lookup & Download API
+# Administrative Boundary Lookup API & Frontend
 
-This project provides a **geospatial lookup and download service** that allows users to:
-- Input latitude and longitude to find administrative boundaries.
-- Query available administrative levels for a location.
-- Download shapefiles (GeoJSON) of specific administrative levels.
-- Interact via a **Next.js frontend** with an intuitive, map-like interface.
+This project provides an API and web-based interface to look up administrative boundaries based on geographic coordinates (latitude & longitude).  
+It supports downloading shapefiles or GeoJSONs of administrative areas at different levels (e.g., ADM1, ADM3).  
+The project also includes a Next.js frontend for easy interaction and visualization.
+* Explore at: https://admin-lookup-api.vercel.app/
 
-The API is powered by **FastAPI**, while the frontend is built with **Next.js** for responsiveness across all screen sizes.
 
----
-
-## Features
-
-- **Coordinate-based lookup** — Find administrative boundaries by latitude & longitude.
-- **ADM level query** — Check available administrative levels for a given location.
-- **Shapefile download** — Download boundary geometry in GeoJSON format.
-- **Responsive UI** — Works across desktop, tablet, and mobile.
-- **Help tooltips** — Guides users unfamiliar with geospatial terms like latitude and longitude.
-- **East Africa Extents** in tooltip help:
-  - **Latitude**: `-11.0` to `6.0`
-  - **Longitude**: `29.0` to `42.0`
+<img width="771" height="374" alt="image" src="https://github.com/user-attachments/assets/65488f74-b525-446f-82d5-90796b47356f" />
 
 ---
 
-## API Endpoints
-
-### 1. Locate Administrative Boundaries
-**`POST /locate`**  
-Find the administrative boundary containing a point.
-
-**Request Query Parameters:**
-- `latitude` (float) — Required.
-- `longitude` (float) — Required.
-
-**Example Request:**
-POST /locate?latitude=-1.2921&longitude=36.8219
-
+## 📂 Folder Structure
+```
+.
+├── .devcontainer/ # Development container configuration
+├── pycache/ # Python cache files
+├── adminlookup/ # Next.js frontend (UI)
+├── data/ # Geospatial datasets
+├── downloads/ # Generated shapefiles & GeoJSONs
+├── streamlit_dashboard/ # Old dashboard (no longer in main use)
+├── .dockerignore # Docker ignore rules
+├── .gitignore # Git ignore rules
+├── Dockerfile # Docker build configuration
+├── README.md # Project documentation
+├── main.py # FastAPI backend entrypoint
+├── requirements.txt # Python dependencies
+```
 
 ---
 
-### 2. Available Levels
-**`GET /levels`**  
-Retrieve available administrative levels for a given point.
+## 🚀 Features
+
+- Lookup administrative boundaries by latitude & longitude
+- Select boundary level (`adm_1`, `adm_2`, `adm_3`, etc.)
+- Download results as GeoJSON
+- Next.js frontend with tooltips for guidance
+- East Africa bounds pre-filled in tooltip for users unfamiliar with coordinates
+
+---
+
+## 🌍 East Africa Bounding Box (Tooltip Reference)
+
+| Coordinate | Value |
+|------------|-------|
+| **Min Latitude** | -12.0 |
+| **Max Latitude** | 5.0 |
+| **Min Longitude** | 29.0 |
+| **Max Longitude** | 42.0 |
+
+---
+
+## 📌 API Endpoints
+
+### **1. Health Check**
+GET /
+- Returns: `"API is running"`
+
+---
+
+### **2. Locate Administrative Area**
+POST /locate
+- Returns administrative area details as JSON.
+  
+**Body Parameters:**
+```json
+{
+  "latitude": -1.286389,
+  "longitude": 36.817223
+}
+```
+### **3. Download Administrative Boundary**
+GET /download
+- Returns: GeoJSON file download.
 
 **Query Parameters:**
-- `latitude` (float) — Required.
-- `longitude` (float) — Required.
+```
+latitude (float, required)
+longitude (float, required)
+level (string, required) — e.g., adm_1, adm_3
+```
+Example Request:
+/download?latitude=-1.286389&longitude=36.817223&level=adm_1
 
----
-
-### 3. Download Administrative Boundary
-**`GET /download`**  
-Download the geometry of the administrative area at the specified level for given coordinates.
-
-**Query Parameters:**
-- `latitude` (float) — Required.
-- `longitude` (float) — Required.
-- `level` (string) — e.g., `adm_1`, `adm_2`, `adm_3`.
-
-**Example Request:**
-GET /download?latitude=-1.2921&longitude=36.8219&level=adm_1
-
-
----
-
-## Project Structure
-
----
-
-## Installation & Running Instructions
-
-### 1. Clone the Repository
-```bash
+## 🛠 Running the Project
+### **1. Clone the Repository**
+```
 git clone https://github.com/kiprutoYG/admin-lookup-api.git
-cd your-repo-name
+cd admin-lookup-api
 ```
-### 2. Backend Setup (FastAPI)
+
+### **2. Backend (FastAPI)**
+Create a virtual environment and install dependencies:
 ```
-cd backend
 python -m venv venv
-source venv/bin/activate   # On Windows: venv\Scripts\activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
-### 3. Run the backend:
+Run the API:
 ```
 uvicorn main:app --reload
 ```
+API will be available at:
+http://127.0.0.1:8000
 
-## License
-This project is licensed under the MIT License.
+### **3. Frontend (Next.js)**
+Navigate to frontend folder:
+```bash
+cd adminlookup
+```
+Install dependencies:
+```
+npm install
+```
+Run the Next.js app:
+```
+npm run dev
+```
+Frontend will be available at:
+```
+(http://localhost:3000)
+```
+
+## 🐳 Running with Docker
+Build the Docker image:
+```
+docker build -t admin-lookup-api .
+```
+
+Run the container:
+docker run -p 8000:8000 admin-lookup-api
+
+## 📜 License
+This project is licensed under the MIT License — you are free to use, modify, and distribute it, provided the license notice is included in copies.
+
+
+
+
