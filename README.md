@@ -128,8 +128,9 @@ docker build -t admin-lookup-api .
 ```
 
 Run the container:
+```
 docker run -p 8000:8000 admin-lookup-api
-
+```
 ## 📜 License
 This project is licensed under the MIT License — you are free to use, modify, and distribute it, provided the license notice is included in copies.
 
