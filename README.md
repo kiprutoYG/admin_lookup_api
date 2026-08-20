@@ -1,4 +1,4 @@
-# Administrative Boundary Lookup API & Frontend
+# Administrative Boundary Lookup API
 
 This project provides an API and web-based interface to look up administrative boundaries based on geographic coordinates (latitude & longitude).  
 It supports downloading shapefiles or GeoJSONs of administrative areas at different levels (e.g., ADM1, ADM3).  
